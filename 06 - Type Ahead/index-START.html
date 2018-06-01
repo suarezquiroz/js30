@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Type Ahead 👀</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
   <form class="search-form">
@@ -14,9 +16,57 @@
       <li>or a state</li>
     </ul>
   </form>
-<script>
-const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+  <script>
+    const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
 
-</script>
-  </body>
+    const cities = []
+    fetch(endpoint)
+      .then(response => response.json())
+      .then(json => {
+        cities.push(...json);
+      })
+
+    function findMatches(stringToMatch) {
+      return cities.filter(place => {
+        const regex = new RegExp(stringToMatch, 'gi')
+        return place.city.match(regex) || place.state.match(regex)
+      })
+    }
+    
+    function numberWithCommas (x) {
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function displayMatches(e) {
+      //can use this.value
+      const regex= new RegExp(e.target.value,'gi')
+      const matches = findMatches(e.target.value)
+      if (e.target.value && matches.length) {
+        let suggestionsHTML = matches.reduce((html, match) => {
+          const city = match.city.replace(regex,`<span class="hl">${this.value}</span>`)
+          const state = match.state.replace(regex,`<span class="hl">$&</span>`) //no need for capitalize replace with the match
+          html += `<li>
+            <span class="name">${city}, ${state}</span>
+            <span class="population">${numberWithCommas(match.population)}</span>
+          </li>`
+          return html
+        }, '')
+
+        suggestions.innerHTML = suggestionsHTML;
+      } else {
+        suggestions.innerHTML = '';
+        suggestionPlaceholder.forEach(li => suggestions.appendChild(li));
+      }
+    }
+
+    const suggestions = document.querySelector('.suggestions')
+    const suggestionPlaceholder = suggestions.querySelectorAll('li')
+
+    document.querySelector('.search').addEventListener('change', displayMatches)
+    document.querySelector('.search').addEventListener('keyup', displayMatches)
+
+
+  </script>
+</body>
+
 </html>
