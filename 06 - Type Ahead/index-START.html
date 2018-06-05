@@ -43,7 +43,7 @@
       const matches = findMatches(e.target.value)
       if (e.target.value && matches.length) {
         let suggestionsHTML = matches.reduce((html, match) => {
-          const city = match.city.replace(regex,`<span class="hl">${this.value}</span>`)
+          const city = match.city.replace(regex,`<span class="hl">$&</span>`)
           const state = match.state.replace(regex,`<span class="hl">$&</span>`) //no need for capitalize replace with the match
           html += `<li>
             <span class="name">${city}, ${state}</span>
